@@ -55,15 +55,19 @@
 
               microkit-platform = microkit-platforms.${system} or (throw "Unsupported system: ${system}");
 
-              env.MICROKIT_SDK = pkgs.fetchzip {
-                url = "https://github.com/seL4/microkit/releases/download/${microkit-version}/microkit-sdk-${microkit-version}-${microkit-platform}.tar.gz";
-                hash = {
-                  aarch64-darwin = "sha256-bFFyVBF2E3YDJ6CYbfCOID7KGREQXkIFDpTD4MzxfCE=";
-                  x86_64-darwin = "sha256-tQWrI5LRp05tLy/HIxgN+0KFJrlmOQ+dpws4Fre+6E0=";
-                  x86_64-linux = "sha256-YpgIAXWB8v4Njm/5Oo0jZpRt/t+e+rVTwFTJ8zr2Hn4=";
-                  aarch64-linux = "sha256-GwWDRJalJOpAYCP/qggFOHDh2e2J1LspWUsyjopECYA=";
-                }.${system} or (throw "Unsupported system: ${system}");
-              };
+              env.MICROKIT_SDK =
+                let sdk = builtins.getEnv "MICROKIT_SDK";
+                in if sdk != "" then sdk else
+                pkgs.fetchzip
+                  {
+                    url = "https://github.com/seL4/microkit/releases/download/${microkit-version}/microkit-sdk-${microkit-version}-${microkit-platform}.tar.gz";
+                    hash = {
+                      aarch64-darwin = "sha256-bFFyVBF2E3YDJ6CYbfCOID7KGREQXkIFDpTD4MzxfCE=";
+                      x86_64-darwin = "sha256-tQWrI5LRp05tLy/HIxgN+0KFJrlmOQ+dpws4Fre+6E0=";
+                      x86_64-linux = "sha256-YpgIAXWB8v4Njm/5Oo0jZpRt/t+e+rVTwFTJ8zr2Hn4=";
+                      aarch64-linux = "sha256-GwWDRJalJOpAYCP/qggFOHDh2e2J1LspWUsyjopECYA=";
+                    }.${system} or (throw "Unsupported system: ${system}");
+                  };
 
               nativeBuildInputs = with pkgs; [
                 rust
